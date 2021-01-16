@@ -16,6 +16,9 @@ AUTOSSH_CACHE_BINARY_PATH="${AUTOSSH_CACHE_DIR}/autossh"
 AUTOSSH_BUILD_DIR="${BUILD_DIR}/.borealis-pg/autossh"
 AUTOSSH_BUILD_BINARY_PATH="${AUTOSSH_BUILD_DIR}/autossh"
 
+STARTUP_SCRIPT_BUILD_DIR="${BUILD_DIR}/.profile.d"
+EXPORT_AUTOSSH_PATH_SCRIPT_NAME='borealis-pg-export-autossh-path.sh'
+
 echo "-----> Installing autossh ${AUTOSSH_VERSION}..."
 
 if [ -f "$AUTOSSH_CACHE_BINARY_PATH" ]
@@ -48,5 +51,11 @@ fi
 mkdir -p "$AUTOSSH_BUILD_DIR"
 cp "$AUTOSSH_CACHE_BINARY_PATH" "$AUTOSSH_BUILD_BINARY_PATH"
 chmod a+x "$AUTOSSH_BUILD_BINARY_PATH"
+
+mkdir -p "$STARTUP_SCRIPT_BUILD_DIR"
+
+echo '       Adding autossh to the PATH...'
+cp "${BUILDPACK_DIR}/profile.d/${EXPORT_AUTOSSH_PATH_SCRIPT_NAME}" "$STARTUP_SCRIPT_BUILD_DIR"
+chmod a+x "${STARTUP_SCRIPT_BUILD_DIR}/${EXPORT_AUTOSSH_PATH_SCRIPT_NAME}"
 
 echo '       Done'
