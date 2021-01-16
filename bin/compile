@@ -18,6 +18,7 @@ AUTOSSH_BUILD_BINARY_PATH="${AUTOSSH_BUILD_DIR}/autossh"
 
 STARTUP_SCRIPT_BUILD_DIR="${BUILD_DIR}/.profile.d"
 EXPORT_AUTOSSH_PATH_SCRIPT_NAME='borealis-pg-export-autossh-path.sh'
+SSH_TUNNEL_SCRIPT_NAME='borealis-pg-init-ssh-tunnel.sh'
 
 echo "-----> Installing autossh ${AUTOSSH_VERSION}..."
 
@@ -57,5 +58,10 @@ mkdir -p "$STARTUP_SCRIPT_BUILD_DIR"
 echo '       Adding autossh to the PATH...'
 cp "${BUILDPACK_DIR}/profile.d/${EXPORT_AUTOSSH_PATH_SCRIPT_NAME}" "$STARTUP_SCRIPT_BUILD_DIR"
 chmod a+x "${STARTUP_SCRIPT_BUILD_DIR}/${EXPORT_AUTOSSH_PATH_SCRIPT_NAME}"
+
+echo '-----> Creating SSH tunnel startup script...'
+mkdir -p "$STARTUP_SCRIPT_BUILD_DIR"
+cp "${BUILDPACK_DIR}/profile.d/${SSH_TUNNEL_SCRIPT_NAME}" "$STARTUP_SCRIPT_BUILD_DIR"
+chmod a+x "${STARTUP_SCRIPT_BUILD_DIR}/${SSH_TUNNEL_SCRIPT_NAME}"
 
 echo '       Done'
