@@ -1,0 +1,52 @@
+#!/usr/bin/env sh
+
+BUILD_DIR="$1"
+CACHE_DIR="$2"
+
+SCRIPT_RELATIVE_DIR=$(dirname "$0")
+cd "${SCRIPT_RELATIVE_DIR}/.." || exit $?
+BUILDPACK_DIR=$(pwd)
+
+AUTOSSH_VERSION='1.4g'
+AUTOSSH_ARCHIVE_NAME="autossh-${AUTOSSH_VERSION}.tgz"
+AUTOSSH_ARCHIVE_CHECKSUM='5fc3cee3361ca1615af862364c480593171d0c54ec156de79fc421e31ae21277'
+AUTOSSH_DOWNLOAD_URL="https://www.harding.motd.ca/autossh/${AUTOSSH_ARCHIVE_NAME}"
+AUTOSSH_CACHE_DIR="${CACHE_DIR}/autossh-${AUTOSSH_VERSION}"
+AUTOSSH_CACHE_BINARY_PATH="${AUTOSSH_CACHE_DIR}/autossh"
+AUTOSSH_BUILD_DIR="${BUILD_DIR}/.borealis-pg/autossh"
+AUTOSSH_BUILD_BINARY_PATH="${AUTOSSH_BUILD_DIR}/autossh"
+
+echo "-----> Installing autossh ${AUTOSSH_VERSION}..."
+
+if [ -f "$AUTOSSH_CACHE_BINARY_PATH" ]
+then
+    echo "       Using cached copy of autossh ${AUTOSSH_VERSION}..."
+else
+    echo "       Downloading autossh ${AUTOSSH_VERSION}..."
+    TEMP_AUTOSSH_ARCHIVE_PATH="${CACHE_DIR}/${AUTOSSH_ARCHIVE_NAME}"
+    TEMP_AUTOSSH_CHECKSUM_PATH="${TEMP_AUTOSSH_ARCHIVE_PATH}.sha256"
+    curl -s -o "$TEMP_AUTOSSH_ARCHIVE_PATH" "$AUTOSSH_DOWNLOAD_URL" || exit $?
+    echo "${AUTOSSH_ARCHIVE_CHECKSUM}  ${TEMP_AUTOSSH_ARCHIVE_PATH}" > "$TEMP_AUTOSSH_CHECKSUM_PATH"
+    sha256sum -c "$TEMP_AUTOSSH_CHECKSUM_PATH" > /dev/null || exit $?
+    tar -x -C "$CACHE_DIR" -f "$TEMP_AUTOSSH_ARCHIVE_PATH" || exit $?
+    rm "$TEMP_AUTOSSH_ARCHIVE_PATH" "$TEMP_AUTOSSH_CHECKSUM_PATH"
+
+    echo "       Building autossh ${AUTOSSH_VERSION}..."
+    cd "$AUTOSSH_CACHE_DIR" || exit $?
+    ./configure --quiet || exit $?
+    make --quiet || exit $?
+    cd "$BUILDPACK_DIR" || exit $?
+
+    echo "       Cleaning up autossh ${AUTOSSH_VERSION} build directory..."
+    TEMP_AUTOSSH_BINARY_PATH="$CACHE_DIR/autossh.borealis-pg-tmp"
+    mv "$AUTOSSH_CACHE_BINARY_PATH" "$TEMP_AUTOSSH_BINARY_PATH" || exit $?
+    rm -rf "$AUTOSSH_CACHE_DIR" || exit $?
+    mkdir -p "$AUTOSSH_CACHE_DIR"
+    mv "$TEMP_AUTOSSH_BINARY_PATH" "$AUTOSSH_CACHE_BINARY_PATH" || exit $?
+fi
+
+mkdir -p "$AUTOSSH_BUILD_DIR"
+cp "$AUTOSSH_CACHE_BINARY_PATH" "$AUTOSSH_BUILD_BINARY_PATH"
+chmod a+x "$AUTOSSH_BUILD_BINARY_PATH"
+
+echo '       Done'
