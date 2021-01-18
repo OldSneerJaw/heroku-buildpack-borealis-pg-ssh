@@ -83,7 +83,7 @@ do
                 fi
 
                 # Create the SSH tunnel
-                autossh \
+                "$HOME"/.borealis-pg/autossh/autossh \
                     -M 0 \
                     -f \
                     -N \
