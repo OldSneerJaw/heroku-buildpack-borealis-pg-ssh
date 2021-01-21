@@ -93,7 +93,7 @@ do
                     -i "$SSH_PRIVATE_KEY_PATH" \
                     "${PORT_FORWARD_ARGS[@]}" \
                     "${SSH_USERNAME}@${SSH_HOST}" \
-                    2> /dev/null
+                    || exit $?
             fi
         fi
     fi
