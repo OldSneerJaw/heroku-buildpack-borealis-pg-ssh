@@ -59,7 +59,7 @@ do
             # The same add-on can be attached to an app multiple times with different environment variables, so only set
             # up the port forwarding if the SSH private key file hasn't already been created by a previous iteration
             SSH_PRIVATE_KEY_PATH="${SSH_CONFIG_DIR}/borealis-pg_${SSH_USERNAME}_${SSH_HOST}.pem"
-            if [[ ! -f "$SSH_PRIVATE_KEY_PATH" ]]
+            if [[ ! -e "$SSH_PRIVATE_KEY_PATH" ]]
             then
                 # Create the SSH configuration directory if it doesn't already exist
                 mkdir -p "$SSH_CONFIG_DIR"
