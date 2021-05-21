@@ -28,8 +28,8 @@ do
             POSTGRES_INTERNAL_PORT="5432"
 
             # Retrieve the SSH tunnel connection details from the base64-encoded SSH connection info env var
-            DECODED_SSH_CONN_INFO=$(printenv "$ENV_VAR" | base64 -d -)
-            IFS=$'\n' read -r -d '' -a CONN_INFO_ARRAY <<< "$DECODED_SSH_CONN_INFO"
+            SSH_CONNECTION_INFO=$(printenv "$ENV_VAR")
+            IFS=$'|' read -r -d '' -a CONN_INFO_ARRAY <<< "$SSH_CONNECTION_INFO"
             for CONN_ITEM in "${CONN_INFO_ARRAY[@]}"
             do
                 if [[ "$CONN_ITEM" =~ ^POSTGRES_WRITER_HOST:=(.+)$ ]]
@@ -44,9 +44,9 @@ do
                 elif [[ "$CONN_ITEM" =~ ^SSH_HOST:=(.+)$ ]]
                 then
                     SSH_HOST="${BASH_REMATCH[1]}"
-                elif [[ "$CONN_ITEM" =~ ^SSH_HOST_PUBLIC_KEY:=(.+)$ ]]
+                elif [[ "$CONN_ITEM" =~ ^SSH_PUBLIC_HOST_KEY:=(.+)$ ]]
                 then
-                    SSH_HOST_PUBLIC_KEY="${BASH_REMATCH[1]}"
+                    SSH_PUBLIC_HOST_KEY="${BASH_REMATCH[1]}"
                 elif [[ "$CONN_ITEM" =~ ^SSH_USERNAME:=(.+)$ ]]
                 then
                     SSH_USERNAME="${BASH_REMATCH[1]}"
@@ -70,7 +70,7 @@ do
                 chmod 400 "$SSH_PRIVATE_KEY_PATH"
 
                 # Add the SSH server's public host key to known_hosts for server authentication
-                echo "${SSH_HOST} ${SSH_HOST_PUBLIC_KEY}" >> "${SSH_CONFIG_DIR}/known_hosts"
+                echo "${SSH_HOST} ${SSH_PUBLIC_HOST_KEY}" >> "${SSH_CONFIG_DIR}/known_hosts"
 
                 # Set up the port forwarding argument(s)
                 WRITER_PORT_FORWARD="localhost:${SSH_TUNNEL_WRITER_LOCAL_PORT}:${POSTGRES_WRITER_HOST}:${POSTGRES_INTERNAL_PORT}"
