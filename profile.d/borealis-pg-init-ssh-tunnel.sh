@@ -4,6 +4,12 @@ SSH_CONFIG_DIR="${HOME}/.ssh"
 CONN_INFO_ENV_VAR_PATTERN='^(.+)_SSH_TUNNEL_BPG_CONNECTION_INFO$'
 PG_URL_PATTERN='^postgres(ql)?://[^@]+@[^:]+:([[:digit:]]+)/.+$'
 
+function normalizeConnItemValue() {
+    connItemValue="$1"
+
+    echo "${connItemValue//\\n/$'\n'}"
+}
+
 ALL_ENV_VARS=$(awk 'BEGIN { for (name in ENVIRON) { print name } }')
 for ENV_VAR in $ALL_ENV_VARS
 do
@@ -35,28 +41,28 @@ do
             do
                 if [[ "$CONN_ITEM" =~ ^POSTGRES_WRITER_HOST:=(.+)$ ]]
                 then
-                    POSTGRES_WRITER_HOST="${BASH_REMATCH[1]}"
+                    POSTGRES_WRITER_HOST=$(normalizeConnItemValue "${BASH_REMATCH[1]}")
                 elif [[ "$CONN_ITEM" =~ ^POSTGRES_READER_HOST:=(.+)$ ]]
                 then
-                    POSTGRES_READER_HOST="${BASH_REMATCH[1]}"
+                    POSTGRES_READER_HOST=$(normalizeConnItemValue "${BASH_REMATCH[1]}")
                 elif [[ "$CONN_ITEM" =~ ^POSTGRES_PORT:=(.+)$ ]]
                 then
-                    POSTGRES_INTERNAL_PORT="${BASH_REMATCH[1]}"
+                    POSTGRES_INTERNAL_PORT=$(normalizeConnItemValue "${BASH_REMATCH[1]}")
                 elif [[ "$CONN_ITEM" =~ ^SSH_HOST:=(.+)$ ]]
                 then
-                    SSH_HOST="${BASH_REMATCH[1]}"
+                    SSH_HOST=$(normalizeConnItemValue "${BASH_REMATCH[1]}")
                 elif [[ "$CONN_ITEM" =~ ^SSH_PORT:=(.+)$ ]]
                 then
-                    SSH_PORT="${BASH_REMATCH[1]}"
+                    SSH_PORT=$(normalizeConnItemValue "${BASH_REMATCH[1]}")
                 elif [[ "$CONN_ITEM" =~ ^SSH_PUBLIC_HOST_KEY:=(.+)$ ]]
                 then
-                    SSH_PUBLIC_HOST_KEY="${BASH_REMATCH[1]}"
+                    SSH_PUBLIC_HOST_KEY=$(normalizeConnItemValue "${BASH_REMATCH[1]}")
                 elif [[ "$CONN_ITEM" =~ ^SSH_USERNAME:=(.+)$ ]]
                 then
-                    SSH_USERNAME="${BASH_REMATCH[1]}"
+                    SSH_USERNAME=$(normalizeConnItemValue "${BASH_REMATCH[1]}")
                 elif [[ "$CONN_ITEM" =~ ^SSH_USER_PRIVATE_KEY:=(.+)$ ]]
                 then
-                    SSH_USER_PRIVATE_KEY="${BASH_REMATCH[1]//\\n/$'\n'}"
+                    SSH_USER_PRIVATE_KEY=$(normalizeConnItemValue "${BASH_REMATCH[1]}")
                 fi
             done
 
