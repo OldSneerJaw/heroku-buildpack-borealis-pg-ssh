@@ -94,6 +94,7 @@ do
                     -o TCPKeepAlive=no \
                     -o ServerAliveCountMax=3 \
                     -o ServerAliveInterval=15 \
+                    -o ExitOnForwardFailure=yes \
                     -p "$SSH_PORT" \
                     -i "$SSH_PRIVATE_KEY_PATH" \
                     "${PORT_FORWARD_ARGS[@]}" \
