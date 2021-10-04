@@ -26,6 +26,7 @@ do
             fi
 
             POSTGRES_INTERNAL_PORT="5432"
+            SSH_PORT="22"
 
             # Retrieve the SSH tunnel connection details from the base64-encoded SSH connection info env var
             SSH_CONNECTION_INFO=$(printenv "$ENV_VAR")
@@ -38,12 +39,15 @@ do
                 elif [[ "$CONN_ITEM" =~ ^POSTGRES_READER_HOST:=(.+)$ ]]
                 then
                     POSTGRES_READER_HOST="${BASH_REMATCH[1]}"
-                elif [[ "$CONN_ITEM" =~ ^POSTGRES_INTERNAL_PORT:=(.+)$ ]]
+                elif [[ "$CONN_ITEM" =~ ^POSTGRES_PORT:=(.+)$ ]]
                 then
                     POSTGRES_INTERNAL_PORT="${BASH_REMATCH[1]}"
                 elif [[ "$CONN_ITEM" =~ ^SSH_HOST:=(.+)$ ]]
                 then
                     SSH_HOST="${BASH_REMATCH[1]}"
+                elif [[ "$CONN_ITEM" =~ ^SSH_PORT:=(.+)$ ]]
+                then
+                    SSH_PORT="${BASH_REMATCH[1]}"
                 elif [[ "$CONN_ITEM" =~ ^SSH_PUBLIC_HOST_KEY:=(.+)$ ]]
                 then
                     SSH_PUBLIC_HOST_KEY="${BASH_REMATCH[1]}"
@@ -90,6 +94,7 @@ do
                     -o TCPKeepAlive=no \
                     -o ServerAliveCountMax=3 \
                     -o ServerAliveInterval=15 \
+                    -p "$SSH_PORT" \
                     -i "$SSH_PRIVATE_KEY_PATH" \
                     "${PORT_FORWARD_ARGS[@]}" \
                     "${SSH_USERNAME}@${SSH_HOST}" \
