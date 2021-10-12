@@ -2,7 +2,7 @@
 
 SSH_CONFIG_DIR="${HOME}/.ssh"
 CONN_INFO_ENV_VAR_PATTERN='^(.+)_SSH_TUNNEL_BPG_CONNECTION_INFO$'
-PG_URL_PATTERN='^postgres(ql)?://[^@]+@[^:]+:([[:digit:]]+)/.+$'
+PG_URL_PATTERN='^postgres(ql)?://[^@]+@([^:]+):([[:digit:]]+)/.+$'
 
 function normalizeConnItemValue() {
     connItemValue="$1"
@@ -21,14 +21,18 @@ do
         ADDON_DB_CONN_STR=$(printenv "${ADDON_ENV_VAR_PREFIX}_URL" || echo '')
         if [[ "$ADDON_DB_CONN_STR" =~ $PG_URL_PATTERN ]]
         then
-            # Retrieve the local port for the writer SSH tunnel from the "*_URL" env var value
-            SSH_TUNNEL_WRITER_LOCAL_PORT="${BASH_REMATCH[2]}"
+            # Retrieve the local host and port for the writer SSH tunnel from the "*_URL" env var
+            # value
+            TUNNEL_WRITER_LOCAL_HOST="${BASH_REMATCH[2]}"
+            TUNNEL_WRITER_LOCAL_PORT="${BASH_REMATCH[3]}"
 
-            # Retrieve the local port for the reader SSH tunnel from the "*_READONLY_URL" env var value, if it exists
+            # Retrieve the local host and port for the reader SSH tunnel from the "*_READONLY_URL"
+            # env var value, if it exists
             ADDON_READONLY_DB_CONN_STR=$(printenv "${ADDON_ENV_VAR_PREFIX}_READONLY_URL" || echo '')
             if [[ "$ADDON_READONLY_DB_CONN_STR" =~ $PG_URL_PATTERN ]]
             then
-                SSH_TUNNEL_READER_LOCAL_PORT="${BASH_REMATCH[2]}"
+                TUNNEL_READER_LOCAL_HOST="${BASH_REMATCH[2]}"
+                TUNNEL_READER_LOCAL_PORT="${BASH_REMATCH[3]}"
             fi
 
             POSTGRES_INTERNAL_PORT="5432"
@@ -66,8 +70,9 @@ do
                 fi
             done
 
-            # The same add-on can be attached to an app multiple times with different environment variables, so only set
-            # up the port forwarding if the SSH private key file hasn't already been created by a previous iteration
+            # The same add-on can be attached to an app multiple times with different environment
+            # variables, so only set up port forwarding if the SSH private key file hasn't already
+            # been created by a previous iteration
             SSH_PRIVATE_KEY_PATH="${SSH_CONFIG_DIR}/borealis-pg_${SSH_USERNAME}_${SSH_HOST}.pem"
             if [[ ! -e "$SSH_PRIVATE_KEY_PATH" ]]
             then
@@ -83,10 +88,10 @@ do
                 echo "${SSH_HOST} ${SSH_PUBLIC_HOST_KEY}" >> "${SSH_CONFIG_DIR}/known_hosts"
 
                 # Set up the port forwarding argument(s)
-                WRITER_PORT_FORWARD="localhost:${SSH_TUNNEL_WRITER_LOCAL_PORT}:${POSTGRES_WRITER_HOST}:${POSTGRES_INTERNAL_PORT}"
-                if [[ -n "$POSTGRES_READER_HOST" ]] && [[ -n "$SSH_TUNNEL_READER_LOCAL_PORT" ]]
+                WRITER_PORT_FORWARD="${TUNNEL_WRITER_LOCAL_HOST}:${TUNNEL_WRITER_LOCAL_PORT}:${POSTGRES_WRITER_HOST}:${POSTGRES_INTERNAL_PORT}"
+                if [[ -n "$POSTGRES_READER_HOST" ]] && [[ -n "$TUNNEL_READER_LOCAL_PORT" ]]
                 then
-                    READER_PORT_FORWARD="localhost:${SSH_TUNNEL_READER_LOCAL_PORT}:${POSTGRES_READER_HOST}:${POSTGRES_INTERNAL_PORT}"
+                    READER_PORT_FORWARD="${TUNNEL_READER_LOCAL_HOST}:${TUNNEL_READER_LOCAL_PORT}:${POSTGRES_READER_HOST}:${POSTGRES_INTERNAL_PORT}"
                     PORT_FORWARD_ARGS=(-L "$WRITER_PORT_FORWARD" -L "$READER_PORT_FORWARD")
                 else
                     PORT_FORWARD_ARGS=(-L "$WRITER_PORT_FORWARD")
