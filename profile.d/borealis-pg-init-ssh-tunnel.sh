@@ -1,8 +1,16 @@
 #!/usr/bin/env bash
 
-SSH_CONFIG_DIR="${HOME}/.ssh"
 CONN_INFO_ENV_VAR_PATTERN='^(.+)_SSH_TUNNEL_BPG_CONNECTION_INFO$'
 PG_URL_PATTERN='^postgres(ql)?://[^@]+@([^:]+):([[:digit:]]+)/.+$'
+SSH_CONFIG_DIR="${HOME}/.ssh"
+DEFAULT_AUTOSSH_DIR="${HOME}/.borealis-pg/autossh"
+
+if [[ -d "$DEFAULT_AUTOSSH_DIR" ]]
+then
+    AUTOSSH_DIR="$DEFAULT_AUTOSSH_DIR"
+else
+    AUTOSSH_DIR="/usr/bin"
+fi
 
 function normalizeConnItemValue() {
     connItemValue="$1"
@@ -98,7 +106,7 @@ do
                 fi
 
                 # Create the SSH tunnel
-                "$HOME"/.borealis-pg/autossh/autossh \
+                "$AUTOSSH_DIR"/autossh \
                     -M 0 \
                     -f \
                     -N \
