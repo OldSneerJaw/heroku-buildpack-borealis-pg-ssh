@@ -1,0 +1,9 @@
+[buildpack]
+id = "borealis/postgres-ssh"
+name = "Borealis Isolated Postgres Heroku Buildpack"
+homepage = "https://github.com/OldSneerJaw/heroku-buildpack-borealis-pg-ssh"
+
+[publish]
+
+[publish.Ignore]
+files = [".gitignore"]
