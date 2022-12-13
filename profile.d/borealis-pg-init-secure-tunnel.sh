@@ -24,7 +24,8 @@
 # SOFTWARE.
 
 
-CONN_INFO_ENV_VAR_PATTERN='^(.+)_SSH_TUNNEL_BPG_CONNECTION_INFO$'
+CONN_INFO_ENV_VAR_PATTERN='^(.+)_TUNNEL_BPG_CONN_INFO$'
+LEGACY_CONN_INFO_ENV_VAR_PATTERN='^(.+)_SSH_TUNNEL_BPG_CONNECTION_INFO$'
 PG_URL_PATTERN='^postgres(ql)?://[^@]+@([^:]+):([[:digit:]]+)/.+$'
 SSH_CONFIG_DIR="${HOME}/.ssh"
 DEFAULT_AUTOSSH_DIR="${HOME}/.borealis-pg/autossh"
@@ -45,7 +46,7 @@ function normalizeConnItemValue() {
 ALL_ENV_VARS=$(awk 'BEGIN { for (name in ENVIRON) { print name } }')
 for ENV_VAR in $ALL_ENV_VARS
 do
-    if [[ "$ENV_VAR" =~ $CONN_INFO_ENV_VAR_PATTERN ]]
+    if [[ "$ENV_VAR" =~ $CONN_INFO_ENV_VAR_PATTERN ]] || [[ "$ENV_VAR" =~ $LEGACY_CONN_INFO_ENV_VAR_PATTERN ]]
     then
         ADDON_ENV_VAR_PREFIX="${BASH_REMATCH[1]}"
 
