@@ -42,7 +42,7 @@ AUTOSSH_BUILD_DIR="${BUILD_DIR}/.borealis-pg/autossh"
 AUTOSSH_BUILD_BINARY_PATH="${AUTOSSH_BUILD_DIR}/autossh"
 
 STARTUP_SCRIPT_BUILD_DIR="${BUILD_DIR}/.profile.d"
-SSH_TUNNEL_SCRIPT_NAME='borealis-pg-init-secure-tunnel.sh'
+SSH_TUNNEL_SCRIPT_NAME='borealis-pg-init-ssh-tunnel.sh'
 
 echo "-----> Installing autossh ${AUTOSSH_VERSION}..."
 
