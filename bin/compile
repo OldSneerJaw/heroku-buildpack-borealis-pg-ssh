@@ -31,6 +31,11 @@ SCRIPT_RELATIVE_DIR=$(dirname "$0")
 cd "${SCRIPT_RELATIVE_DIR}/.." || exit $?
 BUILDPACK_DIR=$(pwd)
 
+BOREALIS_PG_BUILD_DIR="${BUILD_DIR}/.borealis-pg"
+
+WAIT_SCRIPT_NAME='shutdown-wait.sh'
+WAIT_SCRIPT_PATH="${BOREALIS_PG_BUILD_DIR}/${WAIT_SCRIPT_NAME}"
+
 AUTOSSH_VERSION='1.4g'
 AUTOSSH_ARCHIVE_NAME="autossh-${AUTOSSH_VERSION}.tgz"
 AUTOSSH_ARCHIVE_CHECKSUM='5fc3cee3361ca1615af862364c480593171d0c54ec156de79fc421e31ae21277'
@@ -38,11 +43,13 @@ AUTOSSH_PRIMARY_DOWNLOAD_URL="https://www.harding.motd.ca/autossh/${AUTOSSH_ARCH
 AUTOSSH_SECONDARY_DOWNLOAD_URL="https://www.borealis-data.com/autossh/${AUTOSSH_ARCHIVE_NAME}"
 AUTOSSH_CACHE_DIR="${CACHE_DIR}/autossh-${AUTOSSH_VERSION}"
 AUTOSSH_CACHE_BINARY_PATH="${AUTOSSH_CACHE_DIR}/autossh"
-AUTOSSH_BUILD_DIR="${BUILD_DIR}/.borealis-pg/autossh"
+AUTOSSH_BUILD_DIR="${BOREALIS_PG_BUILD_DIR}/autossh"
 AUTOSSH_BUILD_BINARY_PATH="${AUTOSSH_BUILD_DIR}/autossh"
 
 STARTUP_SCRIPT_BUILD_DIR="${BUILD_DIR}/.profile.d"
 SSH_TUNNEL_SCRIPT_NAME='borealis-pg-init-ssh-tunnel.sh'
+
+mkdir -p "$BOREALIS_PG_BUILD_DIR"
 
 echo "-----> Installing autossh ${AUTOSSH_VERSION}..."
 
@@ -83,5 +90,9 @@ echo '-----> Creating SSH tunnel startup script...'
 mkdir -p "$STARTUP_SCRIPT_BUILD_DIR"
 cp "${BUILDPACK_DIR}/profile.d/${SSH_TUNNEL_SCRIPT_NAME}" "$STARTUP_SCRIPT_BUILD_DIR"
 chmod a+x "${STARTUP_SCRIPT_BUILD_DIR}/${SSH_TUNNEL_SCRIPT_NAME}"
+
+echo '-----> Creating server shutdown wait script...'
+cp "${BUILDPACK_DIR}/scripts/${WAIT_SCRIPT_NAME}" "$WAIT_SCRIPT_PATH"
+chmod a+x "$WAIT_SCRIPT_PATH"
 
 echo '       Done'
